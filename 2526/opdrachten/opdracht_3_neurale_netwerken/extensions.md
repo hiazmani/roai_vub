@@ -1,155 +1,115 @@
 # Extensions
 
-## R Script Analysis: `rashevsky_model.R`
+## Current outcome
 
-The file [rashevsky_model.R](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R) complements the notebook well. It is not mainly a time-series demo like the current Python notebook. It is a phase-plane reproduction script that tries to recreate the graphical analysis from Rashevsky's paper.
+The notebook has now been significantly extended and aligned with the PI's material.
 
-### What the R file does
+The main results are:
 
-In [rashevsky_model.R:3](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R#L3), it defines a 2-variable ODE system:
+- the core notebook now uses a simplified symmetric formulation rather than separate per-neuron parameter sets
+- a paper-style phase-plane section has been added for the original mutual-excitation Rashevsky model
+- the final extension now uses the PI-style inhibitory/complementary second equation
+- the final Python plots have been reshaped to match the visual style of the R plots:
+  - nullclines
+  - many trajectories started from the boundary of the square
+  - one highlighted special trajectory
+- the student notebook has been kept self-contained and no longer refers explicitly to hidden R support code
+
+## What we learned from the R file
+
+The original file [rashevsky_model.R](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R) contains two relevant ideas.
+
+### 1. Original active system
+
+The active equations in the file are the symmetric mutual-excitation system:
 
 - `dy[1] = (1 - exp(-a * max(0, y[2] - h2))) - y[1] / alpha`
 - `dy[2] = (1 - exp(-a * max(0, y[1] - h1))) - y[2] / alpha`
 
-This is a symmetric recurrent excitatory system with:
+This is the original recurrent excitatory loop.
 
-- thresholding via `max(0, ...)`
-- saturation via `1 - exp(...)`
-- linear decay via `-y/alpha`
+### 2. Commented alternative second equation
 
-That is very close in spirit to the notebook's `rashevsky_rhs`, but it uses a simpler parameterization:
+The file also contains a commented alternative for the second equation:
 
-- one common gain `a`
-- one common decay timescale `alpha`
-- thresholds `h1`, `h2`
-- no separate `I`, `theta`, `A`, `gamma`
+- `dy[2] <- (1 - (1 - exp(...))) - y[2] / alpha`
 
-Then the script does three things.
+This is the variant the PI described verbally. Conceptually:
 
-1. It defines one parameter regime in [rashevsky_model.R:12-18](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R#L12).
-   Current values:
-   - `h1 = h2 = 0.3`
-   - `a = 4`
-   - `alpha = 1`
+- the first equation stays excitatory
+- the second equation uses the complement of the excitatory term
+- this creates an inhibitory-style or push-pull effect
 
-2. It plots the two nullcline-like curves in [rashevsky_model.R:21-25](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R#L21):
-   - first curve: `e1 = 1 - exp(-a * max(0, e2 - h2))`
-   - second curve: `e2 = 1 - exp(-a * max(0, e1 - h1))`
+That asymmetry is what makes the later phase portraits behave differently.
 
-   In the plot, one is drawn solid and the other dashed. This is the core geometric picture from the paper.
+## What we tested
 
-3. It integrates many trajectories from initial conditions placed along the boundary of the square `[0, 1.5] x [0, 1.5]` in [rashevsky_model.R:27-58](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R#L27).
-   That gives a phase portrait: students can see which initial states flow to rest and which flow to a persistent active state.
+We ran both versions outside the notebook to understand which one shows the qualitative effects the PI remembered.
 
-Finally, in [rashevsky_model.R:60-63](/Users/hiazmani/Documents/PhD/Teaching/roai_vub/2526/opdrachten/opdracht_3_neurale_netwerken/rashevsky_model.R#L60), it adds one special trajectory starting from `(0, 0.9779547)`, likely intended to highlight a separatrix or near-threshold behavior.
+### Original active R equations
 
-### Why this is pedagogically interesting
+When varying `alpha` in the original symmetric system:
 
-This script is valuable because it shows the model in the way Rashevsky actually analyzed it:
+- the fixed point moves
+- the trajectories change shape
+- but strong spiral-like settling is not very pronounced
 
-- not just `e(t)` over time
-- but as geometry in the `(e1, e2)` plane
-- with nullclines plus trajectories from many initial conditions
+### `1 - equation` variant
 
-That is more historically faithful than the current notebook, which already has phase-plane and nullcline sections but treats them more numerically and less as a direct paper-style reconstruction.
+When varying `alpha` in the complementary second-equation variant:
 
-### Relationship to the current notebook
+- the approach to equilibrium becomes much more curved
+- spiral-like settling becomes visibly stronger as `alpha` increases
+- this matches the PI's recollection much better
 
-The notebook already has three nearby pieces:
+This is why the notebook's final extension was redirected toward that variant.
 
-- phase-plane trajectories
+## Notebook alignment decisions
+
+The notebook now uses two distinct dynamical stories on purpose.
+
+### A. Original Rashevsky-style mutual excitation
+
+This is used for the main historical and graphical reconstruction:
+
+- thresholded saturation
+- recurrent excitation
+- persistent versus quiescent regimes
 - nullclines
-- multiple initial conditions
+- boundary-started phase-plane trajectories
 
-What is missing is the specific paper-reproduction version:
+### B. PI-style inhibitory/complementary extension
 
-- the simplified symmetric parameterization from the R file
-- plotting the paper-style curves directly as explicit functions
-- launching trajectories from the boundary of the square
-- highlighting the special initial condition near the basin boundary
+This is used as the final extension:
 
-So this does not require a completely new notebook section. It needs one focused addition that bridges the notebook to the PI's R script.
+- the first equation remains excitatory
+- the second equation uses the complement of the excitatory term
+- students explore how changing `alpha` affects the geometry of the trajectories
+- the main observation is the difference between direct settling and more spiral-like settling
 
-### Simplification Decision
+## Why this structure makes sense pedagogically
 
-For this extension, the notebook should use the same simplified symmetric form as the R script rather than the more general parameterization currently used elsewhere in the notebook.
+For a two-hour student session, the notebook should focus on:
 
-That means:
+- understanding the original recurrent excitatory model
+- seeing how graphical phase-plane analysis works
+- noticing how a qualitatively different second equation changes the dynamics
 
-- one shared coupling/amplitude parameter `A`
-- one shared saturation parameter `alpha`
-- thresholds `h1`, `h2`
-- no separate parameters for neuron 1 and neuron 2
+The final extension is therefore best treated as:
 
-The goal is to keep this section as simple and paper-like as possible, so students can focus on the geometry and qualitative behavior rather than bookkeeping across many parameters.
+- a compact qualitative comparison
+- not a long secondary parameter study
 
-## What to Add to the Notebook
+The current version supports that:
 
-Add one new section after the current phase-plane/nullcline material:
+- one section introduces the inhibitory-style variant
+- one plot shows the same style of phase portrait as the paper-style plots
+- one short comparison across several `alpha` values lets students observe spiral-like settling directly
 
-`## Reproducing Rashevsky's graphical analysis`
+## Remaining optional extensions
 
-Then include four pieces.
+Possible future additions, if more time is available:
 
-1. A short markdown explanation.
-   Explain that the original paper studies the system graphically in the phase plane. State that the next cells reproduce that style more directly, using a simplified symmetric version of the model.
-
-2. A Python version of the R model.
-   Use the simplified symmetric parameterization directly, instead of the more general `I1`, `I2`, `A1`, `A2`, `gamma1`, `gamma2`, etc.
-
-   Example:
-
-   ```python
-   def rashevsky_paper_rhs(state, t, params):
-       e1, e2 = state
-       A = params["A"]
-       alpha = params["alpha"]
-       h1 = params["h1"]
-       h2 = params["h2"]
-
-       de1dt = A * (1 - np.exp(-alpha * np.maximum(0, e2 - h2))) - e1
-       de2dt = A * (1 - np.exp(-alpha * np.maximum(0, e1 - h1))) - e2
-       return [de1dt, de2dt]
-   ```
-
-   This keeps the two equations symmetric and avoids introducing separate per-neuron parameters in this historical reconstruction section.
-
-3. A direct reproduction plot.
-   Make one figure with:
-   - the two nullclines as explicit curves
-   - trajectories started from the four boundaries
-   - the highlighted special trajectory
-
-   This is the key addition. It should mirror the R script visually.
-
-4. A short exploration exercise.
-   Ask students to vary:
-   - `h1`, `h2`
-   - `A`
-   - `alpha`
-
-   and observe:
-   - whether the nonzero equilibrium still exists
-   - whether the basin of attraction grows or shrinks
-   - whether the special initial condition still separates behaviors
-
-## Minimal Integration Plan
-
-For the least disruption to the notebook, add:
-
-- one markdown cell introducing the R-script reproduction
-- one code cell defining `rashevsky_paper_rhs`
-- one code cell plotting the paper-style nullclines and trajectories
-- one markdown cell with three exploration questions
-
-That is enough to make the PI's material available to students without restructuring the notebook.
-
-## Important Teaching Note
-
-The R script is not written as a student-facing explanation. It is a compact research-style plotting script. If it is exposed in the notebook, students will need explicit framing:
-
-- what the two curves mean
-- why the boundary initial conditions are chosen
-- what the special dashed trajectory is supposed to illustrate
-
-Without that framing, they will be able to run it, but many will miss the point.
+- add a final reflection question comparing the geometry of the mutual-excitation and inhibitory-style systems
+- add a short written explanation of why asymmetry in the equations can produce spiral-like convergence
+- add a compact `README.md` for students with execution instructions and a one-paragraph roadmap
