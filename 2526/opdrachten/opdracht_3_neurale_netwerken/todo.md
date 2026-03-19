@@ -1,10 +1,23 @@
 # TODO
 
-## Remaining notebook polish
+## Notebook review status
 
-- Remove the broken citation token from the markdown in the "How the model works" section if it is still present.
-- Remove the duplicate import cell so the notebook has a cleaner execution flow.
-- Decide whether the notebook should remain a guided worked example or be turned into a more incomplete student worksheet.
+- Reviewed file: `rashevsky_conditioning_student_notebook.ipynb`
+- Current role: this notebook is effectively the solution key / worked example, not a student worksheet.
+- Main design decision: keep this as the clean solution version, then derive the student version by deleting or partially deleting function implementations and plotting code.
+
+## Issues found
+
+- Fixed: Exercise 2 previously described a self-driven system in the pseudocode (`AE1`, `AE2`) while the code correctly implemented cross-coupling (`AE2`, `AE1`). The markdown has now been corrected to match the recurrent loop.
+- Release hygiene: the notebook save state is not fully clean. Some code cells have `execution_count: null` while later cells have outputs, and execution counts are not monotone. Before distributing a final solution notebook, rerun top-to-bottom and save once.
+- Environment check: the notebook was not executed end-to-end in the current shell because the local environment used for review did not have `matplotlib` installed. The project metadata does declare the needed dependencies, but the notebook should still be verified in the intended student/teaching environment.
+
+## Content assessment
+
+- The pedagogical sequence is strong: historical context, nonlinearity, recurrent loop, initial-condition sensitivity, phase plane, paper-style nullclines, then the inhibitory/complementary variant.
+- The notebook is internally self-contained and no longer appears to rely on hidden R support code.
+- The previously noted broken citation token does not appear to be present anymore.
+- The previously noted duplicate import cell does not appear to be present anymore.
 
 ## Optional teaching improvements
 
